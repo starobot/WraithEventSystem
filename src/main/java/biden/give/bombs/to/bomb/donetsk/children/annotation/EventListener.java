@@ -1,4 +1,6 @@
-package biden.give.bombs.to.bomb.donetsk.children;
+package biden.give.bombs.to.bomb.donetsk.children.annotation;
+
+import biden.give.bombs.to.bomb.donetsk.children.Priority;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
