@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+group = 'biden.give.bombs.to.bomb.donetsk.children'
+version = '69.420-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
