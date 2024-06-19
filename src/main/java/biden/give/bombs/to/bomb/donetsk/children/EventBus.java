@@ -1,6 +1,5 @@
 package biden.give.bombs.to.bomb.donetsk.children;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -101,7 +100,7 @@ public class EventBus
             listeners.putIfAbsent(eventType, new LinkedList<>());
             LinkedList<Listener> list = listeners.get(eventType);
 
-            final EventListener listener = method.getDeclaredAnnotation(EventListener.class);
+            EventListener listener = method.getDeclaredAnnotation(EventListener.class);
 
             int index = list.size();
             Iterator<Listener> iterator = list.descendingIterator();
@@ -149,18 +148,13 @@ public class EventBus
 
         for (Method method : clazz.getDeclaredMethods())
         {
-            if (isMethodListening(method))
+            if (method.isAnnotationPresent(EventListener.class) && method.getParameterCount() == 1)
             {
                 listening.add(method);
             }
         }
 
         return listening;
-    }
-
-    private static boolean isMethodListening(Method method)
-    {
-        return method.isAnnotationPresent(EventListener.class) && method.getParameterCount() == 1;
     }
 
     private static Class<?> getEventParameterType(Method method)
@@ -171,16 +165,5 @@ public class EventBus
         }
 
         return method.getParameters()[0].getType();
-    }
-
-    private static int getListeningPriority(Method method)
-    {
-        final EventListener listener = method.getDeclaredAnnotation(EventListener.class);
-        if (listener != null)
-        {
-            return listener.priority().getVal();
-        }
-
-        return -1;
     }
 }
