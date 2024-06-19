@@ -7,7 +7,7 @@ Originally made for Wraith client, hovewer I decided to make it public due to my
 
 ### How to use the subscription and posting:
 ```java
-EventBus eventBus = new EventBus;
+EventBus eventBus = new EventBus();
 
 // to post the custom event
 eventBus.post(new Event());
