@@ -47,14 +47,20 @@ public class EventBus
             return;
         }
 
+        boolean canceled = false;
+
         for (Listener l : listeners.get(event.getClass()))
         {
             if (l.getInstance() != null)
             {
                 Class<?> eventParamType = l.getMethod().getParameterTypes()[0];
-                if (eventParamType.isAssignableFrom(event.getClass()))
+                if (eventParamType.isAssignableFrom(event.getClass()) && (l.isReceiveCanceled() || !canceled))
                 {
                     l.invoke(event);
+                    if (event instanceof CancellableEvent cancellableEvent)
+                    {
+                        canceled = cancellableEvent.isCancelled();
+                    }
                 }
             }
         }
@@ -95,12 +101,13 @@ public class EventBus
             listeners.putIfAbsent(eventType, new LinkedList<>());
             LinkedList<Listener> list = listeners.get(eventType);
 
-            int priority = getListeningPriority(method);
+            final EventListener listener = method.getDeclaredAnnotation(EventListener.class);
+
             int index = list.size();
             Iterator<Listener> iterator = list.descendingIterator();
             while (iterator.hasNext())
             {
-                if (iterator.next().getPriority() > priority)
+                if (iterator.next().getPriority() > listener.priority().getVal())
                 {
                     break;
                 }
@@ -110,7 +117,7 @@ public class EventBus
                 }
             }
 
-            list.add(index, new Listener(instance, method, priority));
+            list.add(index, new Listener(instance, method, listener));
             subscribedEvents.add(eventType);
         }
     }
