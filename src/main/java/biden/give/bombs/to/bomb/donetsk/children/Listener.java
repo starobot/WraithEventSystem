@@ -14,15 +14,15 @@ public class Listener
 {
     private final Object instance;
     private final Method method;
-    private final int priority;
+    private final EventListener listener;
 
     private final Consumer<Object> consumer;
 
-    public Listener(Object instance, Method method, int priority)
+    public Listener(Object instance, Method method, EventListener listener)
     {
         this.instance = instance;
         this.method = method;
-        this.priority = priority;
+        this.listener = listener;
         this.consumer = createConsumer();
     }
 
@@ -57,7 +57,12 @@ public class Listener
 
     public int getPriority()
     {
-        return priority;
+        return listener.priority().getVal();
+    }
+
+    public boolean isReceiveCanceled()
+    {
+        return listener.receiveCanceled();
     }
 
     public Method getMethod()

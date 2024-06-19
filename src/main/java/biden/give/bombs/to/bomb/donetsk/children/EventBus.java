@@ -1,6 +1,5 @@
 package biden.give.bombs.to.bomb.donetsk.children;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -47,14 +46,20 @@ public class EventBus
             return;
         }
 
+        boolean canceled = false;
+
         for (Listener l : listeners.get(event.getClass()))
         {
             if (l.getInstance() != null)
             {
                 Class<?> eventParamType = l.getMethod().getParameterTypes()[0];
-                if (eventParamType.isAssignableFrom(event.getClass()))
+                if (eventParamType.isAssignableFrom(event.getClass()) && (l.isReceiveCanceled() || !canceled))
                 {
                     l.invoke(event);
+                    if (event instanceof CancellableEvent cancellableEvent)
+                    {
+                        canceled = cancellableEvent.isCancelled();
+                    }
                 }
             }
         }
@@ -95,12 +100,13 @@ public class EventBus
             listeners.putIfAbsent(eventType, new LinkedList<>());
             LinkedList<Listener> list = listeners.get(eventType);
 
-            int priority = getListeningPriority(method);
+            EventListener listener = method.getDeclaredAnnotation(EventListener.class);
+
             int index = list.size();
             Iterator<Listener> iterator = list.descendingIterator();
             while (iterator.hasNext())
             {
-                if (iterator.next().getPriority() > priority)
+                if (iterator.next().getPriority() > listener.priority().getVal())
                 {
                     break;
                 }
@@ -110,7 +116,7 @@ public class EventBus
                 }
             }
 
-            list.add(index, new Listener(instance, method, priority));
+            list.add(index, new Listener(instance, method, listener));
             subscribedEvents.add(eventType);
         }
     }
@@ -142,31 +148,13 @@ public class EventBus
 
         for (Method method : clazz.getDeclaredMethods())
         {
-            if (isMethodListening(method))
+            if (method.isAnnotationPresent(EventListener.class) && method.getParameterCount() == 1)
             {
                 listening.add(method);
             }
         }
 
         return listening;
-    }
-
-    private static boolean isMethodListening(Method method)
-    {
-        boolean annotated = false;
-
-        for (Annotation annotation : method.getDeclaredAnnotations())
-        {
-            if (annotation instanceof EventListener)
-            {
-                annotated = true;
-                break;
-            }
-        }
-
-        boolean hasEventParam = method.getParameterCount() == 1;
-
-        return annotated && hasEventParam;
     }
 
     private static Class<?> getEventParameterType(Method method)
@@ -177,18 +165,5 @@ public class EventBus
         }
 
         return method.getParameters()[0].getType();
-    }
-
-    private static int getListeningPriority(Method method)
-    {
-        for (Annotation annotation : method.getDeclaredAnnotations())
-        {
-            if (annotation instanceof EventListener e)
-            {
-                return e.priority().getVal();
-            }
-        }
-
-        return -1;
     }
 }
