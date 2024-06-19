@@ -164,9 +164,7 @@ public class EventBus
             }
         }
 
-        boolean hasEventParam = method.getParameterCount() == 1;
-
-        return annotated && hasEventParam;
+        return annotated && method.getParameterCount() == 1;
     }
 
     private static Class<?> getEventParameterType(Method method)
