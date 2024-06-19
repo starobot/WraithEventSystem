@@ -181,12 +181,10 @@ public class EventBus
 
     private static int getListeningPriority(Method method)
     {
-        for (Annotation annotation : method.getDeclaredAnnotations())
+        final EventListener listener = method.getDeclaredAnnotation(EventListener.class);
+        if (listener != null)
         {
-            if (annotation instanceof EventListener e)
-            {
-                return e.priority().getVal();
-            }
+            return listener.priority().getVal();
         }
 
         return -1;
