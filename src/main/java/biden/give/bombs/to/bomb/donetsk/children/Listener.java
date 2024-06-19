@@ -45,6 +45,11 @@ public class Listener
         }
     }
 
+    /**
+     * The invoke method accepting the Event.
+     *
+     * @param event represents the Event class.
+     */
     public void invoke(Object event)
     {
         consumer.accept(event);

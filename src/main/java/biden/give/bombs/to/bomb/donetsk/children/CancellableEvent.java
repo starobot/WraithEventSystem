@@ -7,6 +7,10 @@ public class CancellableEvent
 {
     private boolean cancelled;
 
+    public CancellableEvent() {
+        cancelled = false;
+    }
+
     public boolean isCancelled()
     {
         return cancelled;
