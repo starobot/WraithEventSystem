@@ -160,18 +160,7 @@ public class EventBus
 
     private static boolean isMethodListening(Method method)
     {
-        boolean annotated = false;
-
-        for (Annotation annotation : method.getDeclaredAnnotations())
-        {
-            if (annotation instanceof EventListener)
-            {
-                annotated = true;
-                break;
-            }
-        }
-
-        return annotated && method.getParameterCount() == 1;
+        return method.isAnnotationPresent(EventListener.class) && method.getParameterCount() == 1;
     }
 
     private static Class<?> getEventParameterType(Method method)

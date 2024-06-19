@@ -1,13 +1,17 @@
 package biden.give.bombs.to.bomb.donetsk.children;
 
+import static java.lang.Integer.MAX_VALUE;
+
 /**
  * Represents the priority of an event listener.
  */
 public enum Priority
 {
-    High(3),
-    Mid(2),
-    Low(1);
+    HIGHEST(MAX_VALUE),
+    HIGH(3),
+    MEDIUM(2),
+    LOW(1),
+    DEFAULT(0);
 
     private final int val;
 

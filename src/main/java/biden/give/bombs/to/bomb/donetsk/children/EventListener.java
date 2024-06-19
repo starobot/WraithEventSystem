@@ -14,6 +14,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface EventListener
 {
-    Priority priority() default Priority.Low;
+    Priority priority() default Priority.DEFAULT;
     boolean receiveCanceled() default false;
 }

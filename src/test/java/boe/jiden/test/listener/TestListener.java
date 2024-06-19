@@ -13,7 +13,7 @@ public class TestListener
         System.out.println("Retrieved test event!");
     }
 
-    @EventListener(priority = Priority.High)
+    @EventListener(priority = Priority.HIGH)
     public void onTestCancelableEvent(TestCancelableEvent event)
     {
         System.out.println("Retrieved test event!");
