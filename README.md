@@ -26,4 +26,4 @@ public void invoke(Event event) // the method must be public
 ```
 
 ## TODO:
-Add the posibillity of creating different types of listeners (for example SafeListener that would check mc.player, mc.world and mc.interactionManager for being null).
+~~Add the posibillity of creating different types of listeners (for example SafeListener that would check mc.player, mc.world and mc.interactionManager for being null).~~
