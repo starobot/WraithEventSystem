@@ -4,7 +4,7 @@ import biden.give.bombs.to.bomb.donetsk.children.EventBus;
 import boe.jiden.test.event.TestCancelableEvent;
 import boe.jiden.test.event.TestEvent;
 import boe.jiden.test.listener.TestListener;
-import boe.jiden.test.listener.TestListenerCancelable;
+import boe.jiden.test.listener.TestSafeListener;
 
 public class Main
 {
@@ -15,7 +15,7 @@ public class Main
         // Subscribe our testing listeners
         // TODO: benchmarking?
         eventBus.subscribe(new TestListener());
-        eventBus.subscribe(new TestListenerCancelable());
+        eventBus.subscribe(new TestSafeListener());
 
         // Test by sending events
         eventBus.post(new TestEvent());

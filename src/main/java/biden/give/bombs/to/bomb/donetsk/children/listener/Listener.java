@@ -1,4 +1,4 @@
-package biden.give.bombs.to.bomb.donetsk.children;
+package biden.give.bombs.to.bomb.donetsk.children.listener;
 
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
@@ -14,15 +14,14 @@ public class Listener
 {
     private final Object instance;
     private final Method method;
-    private final EventListener listener;
-
+    private final int priority;
     private final Consumer<Object> consumer;
 
-    public Listener(Object instance, Method method, EventListener listener)
+    public Listener(Object instance, Method method, int priority)
     {
         this.instance = instance;
         this.method = method;
-        this.listener = listener;
+        this.priority = priority;
         this.consumer = createConsumer();
     }
 
@@ -55,16 +54,6 @@ public class Listener
         consumer.accept(event);
     }
 
-    public int getPriority()
-    {
-        return listener.priority().getVal();
-    }
-
-    public boolean isReceiveCanceled()
-    {
-        return listener.receiveCanceled();
-    }
-
     public Method getMethod()
     {
         return method;
@@ -73,6 +62,11 @@ public class Listener
     public Object getInstance()
     {
         return instance;
+    }
+
+    public int getPriority()
+    {
+        return priority;
     }
 
 }

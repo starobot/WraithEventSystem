@@ -1,6 +1,6 @@
 package boe.jiden.test.listener;
 
-import biden.give.bombs.to.bomb.donetsk.children.EventListener;
+import biden.give.bombs.to.bomb.donetsk.children.annotation.EventListener;
 import biden.give.bombs.to.bomb.donetsk.children.Priority;
 import boe.jiden.test.event.TestCancelableEvent;
 import boe.jiden.test.event.TestEvent;
