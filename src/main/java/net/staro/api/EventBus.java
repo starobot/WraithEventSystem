@@ -1,9 +1,8 @@
-package biden.give.bombs.to.bomb.donetsk.children;
+package net.staro.api;
 
-import biden.give.bombs.to.bomb.donetsk.children.annotation.EventListener;
-import biden.give.bombs.to.bomb.donetsk.children.annotation.SafeEventListener;
-import biden.give.bombs.to.bomb.donetsk.children.listener.Listener;
-import biden.give.bombs.to.bomb.donetsk.children.listener.SafeListener;
+import net.staro.api.annotation.Listener;
+import net.staro.api.listener.EventListener;
+import net.staro.api.listener.GenericListener;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -12,7 +11,7 @@ import java.util.function.BiFunction;
 
 /**
  * The event bus for registering and distributing events.
- * @see Listener
+ * @see GenericListener
  */
 public class EventBus
 {
@@ -20,7 +19,7 @@ public class EventBus
     /**
      * A hashmap is used for fast event lookup. Listeners are put into a list based on their event class.
      */
-    private final HashMap<Class<?>, LinkedList<Listener>> listeners;
+    private final HashMap<Class<?>, LinkedList<GenericListener>> listeners;
 
     /**
      * Weak references subscribed objects to the event types they are listening to.
@@ -31,27 +30,26 @@ public class EventBus
     /**
      * Stores factory functions for creating listeners based on their annotations.
      */
-    private final Map<Class<? extends Annotation>, BiFunction<Object, Method, Listener>> listenerFactories = new HashMap<>();
+    private final Map<Class<? extends Annotation>, BiFunction<Object, Method, GenericListener>> listenerFactories = new HashMap<>();
 
     public EventBus()
     {
         this.listeners = new HashMap<>();
         this.subscriptions = new WeakHashMap<>();
-        registerListenerFactory(EventListener.class, (instance, method) ->
-                new Listener(instance, method, method.getAnnotation(EventListener.class).priority().getVal())
-        );
-        registerListenerFactory(SafeEventListener.class, (instance, method) ->
-                new SafeListener(instance, method, method.getAnnotation(SafeEventListener.class).priority().getVal())
+        registerListenerFactory(Listener.class, (instance, method) ->
+                new GenericListener(instance, method, method.getAnnotation(Listener.class).priority().getVal())
         );
     }
 
     /**
      * Registers a factory function for creating a specific type of listener based on its annotation.
+     * The current Library provides {@link GenericListener}.
+     * For creating more listeners either implement {@link EventListener} or extend {@link GenericListener} and register them in the constructor with this method.
      *
      * @param annotationType The annotation class associated with the listener type.
      * @param factory The function that creates the listener instance given the object and method.
      */
-    public void registerListenerFactory(Class<? extends Annotation> annotationType, BiFunction<Object, Method, Listener> factory)
+    public void registerListenerFactory(Class<? extends Annotation> annotationType, BiFunction<Object, Method, GenericListener> factory)
     {
         listenerFactories.put(annotationType, factory);
     }
@@ -68,7 +66,7 @@ public class EventBus
             return;
         }
 
-        for (Listener l : listeners.get(event.getClass()))
+        for (GenericListener l : listeners.get(event.getClass()))
         {
             if (l.getInstance() != null)
             {
@@ -114,14 +112,14 @@ public class EventBus
         {
             Class<?> eventType = getEventParameterType(method);
             listeners.putIfAbsent(eventType, new LinkedList<>());
-            LinkedList<Listener> list = listeners.get(eventType);
+            LinkedList<GenericListener> list = listeners.get(eventType);
 
             for (Annotation annotation : method.getAnnotations())
             {
                 if (listenerFactories.containsKey(annotation.annotationType()))
                 {
-                    BiFunction<Object, Method, Listener> factory = listenerFactories.get(annotation.annotationType());
-                    Listener listener = factory.apply(instance, method);
+                    BiFunction<Object, Method, GenericListener> factory = listenerFactories.get(annotation.annotationType());
+                    GenericListener listener = factory.apply(instance, method);
 
                     int index = getPriorityIndex(list, listener.getPriority());
 
@@ -133,10 +131,10 @@ public class EventBus
         }
     }
 
-    private int getPriorityIndex(LinkedList<Listener> list, int priority)
+    private int getPriorityIndex(LinkedList<GenericListener> list, int priority)
     {
         int index = list.size();
-        Iterator<Listener> iterator = list.descendingIterator();
+        Iterator<GenericListener> iterator = list.descendingIterator();
         while (iterator.hasNext())
         {
             if (iterator.next().getPriority() > priority)
@@ -161,7 +159,7 @@ public class EventBus
         for (Method method : methods)
         {
             Class<?> eventType = getEventParameterType(method);
-            LinkedList<Listener> list = listeners.get(eventType);
+            LinkedList<GenericListener> list = listeners.get(eventType);
             if (list == null)
             {
                 continue;
@@ -205,7 +203,7 @@ public class EventBus
     {
         for (Class<?> eventType : listeners.keySet())
         {
-            LinkedList<Listener> list = listeners.get(eventType);
+            LinkedList<GenericListener> list = listeners.get(eventType);
             list.removeIf(l -> l.getInstance() == null);
         }
     }

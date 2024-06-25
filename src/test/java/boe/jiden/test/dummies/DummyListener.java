@@ -1,6 +1,6 @@
-package biden.give.bombs.to.bomb.donetsk.children.annotation;
+package boe.jiden.test.dummies;
 
-import biden.give.bombs.to.bomb.donetsk.children.Priority;
+import net.staro.api.Priority;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,12 +8,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark methods as event listeners.
- * The methods are required to be public.
+ * Annotation for {@link DummyGenericListener}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface EventListener
+public @interface DummyListener
 {
     Priority priority() default Priority.DEFAULT;
 }

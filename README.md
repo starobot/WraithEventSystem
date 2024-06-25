@@ -14,16 +14,57 @@ eventBus.post(new Event());
 
 // to subscribe the current instance
 eventBus.subscribe(this);
+eventBus.subsribe(new TickListener);
 ```
 
 ### How to create listeners:
 ```java
-@EventListener
+@Listener
 public void invoke(Event event) // the method must be public
 {
   event.getSomething();
 }
 ```
 
-## TODO:
-Add the posibillity of creating different types of listeners (for example SafeListener that would check mc.player, mc.world and mc.interactionManager for being null).
+## How to work with the API:
+Override the GenericListener or implement an EventListener interface to your custom generic listener.
+```java
+public class CustomGenericListener extends GenericListener
+{
+    public CustomGenericListener(Object instance, Method method, int priority)
+    {
+        super(instance, method, priority);
+    }
+
+    @Override
+    public void invoke(Object event)
+    {
+        // add the additional functionality before using the super.invoke(Object event) method.
+    }
+}
+```
+Create annotation for the CustomGenericListener
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface CustomListener
+{
+    Priority priority() default Priority.DEFAULT;
+}
+```
+Then override EventBus to register the new generic listener with it's annotation.
+```java
+public class CustomEventBus extends EventBus
+{
+    public CustomEventBus()
+    {
+        super.registerListenerFactory(CustomListener.class, (instance, method) ->
+                new CustomGenericListener(instance, method, method.getAnnotation(CustomListener.class).priority().getVal())
+        );
+    }
+}
+```
+Now you are golden:
+```java
+CustomEventBus eventBus = new CustomEventBus();
+```

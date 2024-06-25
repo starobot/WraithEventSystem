@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'biden.give.bombs.to.bomb.donetsk.children'
+group = 'net.staro.api'
 version = '69.420-SNAPSHOT'
 
 repositories {

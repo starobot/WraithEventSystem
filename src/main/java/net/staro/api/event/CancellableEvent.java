@@ -1,4 +1,4 @@
-package biden.give.bombs.to.bomb.donetsk.children.event;
+package net.staro.api.event;
 
 /**
  * An event that can be canceled by listeners.

@@ -1,4 +1,4 @@
-package biden.give.bombs.to.bomb.donetsk.children.listener;
+package net.staro.api.listener;
 
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
@@ -9,15 +9,17 @@ import java.util.function.Consumer;
 
 /**
  * A class representing an event listener.
+ * It's not actually generic, but I felt like it suits it the best at this context.
+ * Also, that way we can annotate the listeners with {@code @Listener}
  */
-public class Listener
+public class GenericListener implements EventListener
 {
     private final Object instance;
     private final Method method;
     private final int priority;
     private final Consumer<Object> consumer;
 
-    public Listener(Object instance, Method method, int priority)
+    public GenericListener(Object instance, Method method, int priority)
     {
         this.instance = instance;
         this.method = method;
@@ -49,6 +51,7 @@ public class Listener
      *
      * @param event represents the Event class.
      */
+    @Override
     public void invoke(Object event)
     {
         consumer.accept(event);
