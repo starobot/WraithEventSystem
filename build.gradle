@@ -1,12 +1,16 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
-group = 'net.staro.api'
-version = '69.420-SNAPSHOT'
+group = 'net.staro'
+version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
 }
 
 dependencies {
@@ -14,6 +18,27 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    if (JavaVersion.current().isJava9Compatible()) {
+        it.options.release.set(17)
+    }
+}
+
 test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = group
+            artifactId = rootProject.name // Or your project's name
+            from components.java
+        }
+    }
 }
