@@ -34,7 +34,7 @@ repositories {
 ```
 ```
 dependencies {
-    implementation 'com.github.starobot:WraithEventSystem:1.5'
+    implementation 'com.github.starobot:WraithEventSystem:420.69'
 }
 ```
 
