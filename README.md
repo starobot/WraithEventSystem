@@ -25,6 +25,18 @@ public void invoke(Event event) // the method must be public
   event.getSomething();
 }
 ```
+# Library implementation
+```
+repositories {
+    ...
+    maven { url 'https://jitpack.io' }
+}
+```
+```
+dependencies {
+    implementation 'com.github.starobot:WraithEventSystem:1.5'
+}
+```
 
 ## How to work with the API:
 Override the GenericListener or implement an EventListener interface to your custom generic listener.
