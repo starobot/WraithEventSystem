@@ -18,6 +18,10 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
+jar{
+    from sourceSets.main.allSource
+}
+
 java {
     withSourcesJar()
     withJavadocJar()
