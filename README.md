@@ -38,7 +38,7 @@ dependencies {
 }
 ```
 
-## How to work with the API:
+## How to use the Library:
 Override the GenericListener or implement an EventListener interface to your custom generic listener.
 ```java
 public class CustomGenericListener extends GenericListener
