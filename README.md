@@ -38,7 +38,7 @@ dependencies {
 }
 ```
 
-## How to use the Library:
+### How to override the EventBus and create more generic listeners
 Override the GenericListener or implement an EventListener interface to your custom generic listener.
 ```java
 public class CustomGenericListener extends GenericListener
