@@ -1,7 +1,16 @@
 # Wraith Event System
 
-A simple java event system aimed for minecraft mod development. This is the continuation of the @ARZI1 event system
+An EXTREMELY FAST java event system. This is the continuation of the @ARZI1 event system
 https://github.com/ARZI1/eventsystem
+
+Here are the benchmark comparison between WraithEventSystem, Orbit and Energy and Pingbypass Event Bus upon posting one million events:
+Wraith: 15 ms
+Orbit: 44 ms
+Energy: 85 ms
+Pingbypass: 28 ms
+https://github.com/MeteorDevelopment/orbit
+https://github.com/QuantumClient/Energy
+https://github.com/3arthqu4ke/pingbypass
 
 Originally made for Wraith client, hovewer I decided to make it public due to my github profile being empty.
 
