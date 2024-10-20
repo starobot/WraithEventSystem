@@ -2,7 +2,6 @@ package net.staro.api;
 
 import net.staro.api.annotation.Listener;
 import net.staro.api.listener.EventListener;
-import net.staro.api.listener.GenericListener;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -11,7 +10,7 @@ import java.util.function.BiFunction;
 
 /**
  * The event bus for registering and distributing events.
- * @see GenericListener
+ * @see EventListener
  */
 public class EventBus
 {
@@ -19,7 +18,7 @@ public class EventBus
     /**
      * A hashmap is used for fast event lookup. Listeners are put into a list based on their event class.
      */
-    private final HashMap<Class<?>, LinkedList<GenericListener>> listeners;
+    private final HashMap<Class<?>, PriorityQueue<EventListener>> listeners;
 
     /**
      * Weak references subscribed objects to the event types they are listening to.
@@ -30,26 +29,24 @@ public class EventBus
     /**
      * Stores factory functions for creating listeners based on their annotations.
      */
-    private final Map<Class<? extends Annotation>, BiFunction<Object, Method, GenericListener>> listenerFactories = new HashMap<>();
+    private final Map<Class<? extends Annotation>, BiFunction<Object, Method, EventListener>> listenerFactories = new HashMap<>();
 
     public EventBus()
     {
         this.listeners = new HashMap<>();
         this.subscriptions = new WeakHashMap<>();
-        registerListenerFactory(Listener.class, (instance, method) ->
-                new GenericListener(instance, method, method.getAnnotation(Listener.class).priority().getVal())
-        );
+        registerListenerFactory(Listener.class, (instance, method) -> new EventListener(instance, method, method.getAnnotation(Listener.class).priority().getVal()));
     }
 
     /**
      * Registers a factory function for creating a specific type of listener based on its annotation.
-     * The current Library provides {@link GenericListener}.
-     * For creating more listeners either implement {@link EventListener} or extend {@link GenericListener} and register them in the constructor with this method.
+     * The current Library provides {@link EventListener}.
+     * For creating more listeners either implement {@link java.util.EventListener} or extend {@link EventListener} and register them in the constructor with this method.
      *
      * @param annotationType The annotation class associated with the listener type.
      * @param factory The function that creates the listener instance given the object and method.
      */
-    public void registerListenerFactory(Class<? extends Annotation> annotationType, BiFunction<Object, Method, GenericListener> factory)
+    public void registerListenerFactory(Class<? extends Annotation> annotationType, BiFunction<Object, Method, EventListener> factory)
     {
         listenerFactories.put(annotationType, factory);
     }
@@ -60,20 +57,17 @@ public class EventBus
      */
     public void post(Object event)
     {
-        removeStaleListeners();
-        if (!listeners.containsKey(event.getClass()))
+        if (listeners.containsKey(event.getClass()))
         {
-            return;
-        }
-
-        for (GenericListener l : listeners.get(event.getClass()))
-        {
-            if (l.getInstance() != null)
+            for (EventListener l : listeners.get(event.getClass()))
             {
-                Class<?> eventParamType = l.getMethod().getParameterTypes()[0];
-                if (eventParamType.isAssignableFrom(event.getClass()))
+                if (l.getInstance() != null)
                 {
-                    l.invoke(event);
+                    Class<?> eventParamType = l.getMethod().getParameterTypes()[0];
+                    if (eventParamType.isAssignableFrom(event.getClass()))
+                    {
+                        l.invoke(event);
+                    }
                 }
             }
         }
@@ -98,6 +92,11 @@ public class EventBus
         subscriptions.remove(instance);
     }
 
+    public boolean isSubscribed(Object object)
+    {
+        return subscriptions.containsKey(object);
+    }
+
     /**
      * Turns methods we know are listeners into listener objects.
      *
@@ -107,45 +106,23 @@ public class EventBus
     private void addListeners(List<Method> methods, Object instance)
     {
         List<Class<?>> subscribedEvents = subscriptions.computeIfAbsent(instance, k -> new ArrayList<>());
-
-        for (Method method : methods)
+        for (var method : methods)
         {
             Class<?> eventType = getEventParameterType(method);
-            listeners.putIfAbsent(eventType, new LinkedList<>());
-            LinkedList<GenericListener> list = listeners.get(eventType);
-
-            for (Annotation annotation : method.getAnnotations())
+            listeners.putIfAbsent(eventType, new PriorityQueue<>());
+            PriorityQueue<EventListener> queue = listeners.get(eventType);
+            for (var annotation : method.getAnnotations())
             {
                 if (listenerFactories.containsKey(annotation.annotationType()))
                 {
-                    BiFunction<Object, Method, GenericListener> factory = listenerFactories.get(annotation.annotationType());
-                    GenericListener listener = factory.apply(instance, method);
-
-                    int index = getPriorityIndex(list, listener.getPriority());
-
-                    list.add(index, listener);
+                    BiFunction<Object, Method, EventListener> factory = listenerFactories.get(annotation.annotationType());
+                    EventListener listener = factory.apply(instance, method);
+                    queue.offer(listener);
                     subscribedEvents.add(eventType);
                     break;
                 }
             }
         }
-    }
-
-    private int getPriorityIndex(LinkedList<GenericListener> list, int priority)
-    {
-        int index = list.size();
-        Iterator<GenericListener> iterator = list.descendingIterator();
-        while (iterator.hasNext())
-        {
-            if (iterator.next().getPriority() > priority)
-            {
-                break;
-            } else
-            {
-                index--;
-            }
-        }
-        return index;
     }
 
     /**
@@ -156,26 +133,25 @@ public class EventBus
      */
     private void removeListeners(List<Method> methods, Object instance)
     {
-        for (Method method : methods)
+        for (var method : methods)
         {
             Class<?> eventType = getEventParameterType(method);
-            LinkedList<GenericListener> list = listeners.get(eventType);
-            if (list == null)
+            PriorityQueue<EventListener> queue = listeners.get(eventType);
+            if (queue == null)
             {
                 continue;
             }
 
-            list.removeIf(l -> l.getMethod().equals(method) && l.getInstance() == instance);
+            queue.removeIf(l -> l.getMethod().equals(method) && l.getInstance() == instance);
         }
     }
 
     private List<Method> getListeningMethods(Class<?> clazz)
     {
         ArrayList<Method> listening = new ArrayList<>();
-
-        for (Method method : clazz.getDeclaredMethods())
+        for (var method : clazz.getDeclaredMethods())
         {
-            for (Annotation annotation : method.getDeclaredAnnotations())
+            for (var annotation : method.getDeclaredAnnotations())
             {
                 if (listenerFactories.containsKey(annotation.annotationType()) && method.getParameterCount() == 1)
                 {
@@ -183,6 +159,7 @@ public class EventBus
                 }
             }
         }
+
         return listening;
     }
 
@@ -196,15 +173,4 @@ public class EventBus
         return method.getParameters()[0].getType();
     }
 
-    /**
-     * Removes the garbage collected listeners.
-     */
-    private void removeStaleListeners()
-    {
-        for (Class<?> eventType : listeners.keySet())
-        {
-            LinkedList<GenericListener> list = listeners.get(eventType);
-            list.removeIf(l -> l.getInstance() == null);
-        }
-    }
 }

@@ -12,14 +12,11 @@ public class Main
     public static void main(String[] args)
     {
         final DummyEventBus dummyEventBus = new DummyEventBus();
-
-        // Subscribe our testing listeners
         dummyEventBus.subscribe(new TestDummyListener());
-        dummyEventBus.subscribe(new TestListener());
-
-        // Test by sending events
-        dummyEventBus.post(new TestCancelableEvent());
-        dummyEventBus.post(new TestDummyEvent());
-        dummyEventBus.post(new TestEvent());
+        var timer = System.currentTimeMillis();
+        for (int i = 0; i <= 1000000; i++) {
+            dummyEventBus.post(new TestEvent());
+        }
+        System.out.println(System.currentTimeMillis() - timer);
     }
 }

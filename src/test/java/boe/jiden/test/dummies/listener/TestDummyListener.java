@@ -12,6 +12,6 @@ public class TestDummyListener
     @DummyListener(priority = Priority.HIGHEST)
     public void invoke(TestDummyEvent ignored)
     {
-        System.out.println("Retrieved dummy test event!");
+
     }
 }
