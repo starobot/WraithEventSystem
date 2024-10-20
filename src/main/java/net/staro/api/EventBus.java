@@ -14,7 +14,6 @@ import java.util.function.BiFunction;
  */
 public class EventBus
 {
-
     /**
      * A hashmap is used for fast event lookup. Listeners are put into a list based on their event class.
      */
@@ -57,18 +56,22 @@ public class EventBus
      */
     public void post(Object event)
     {
-        if (listeners.containsKey(event.getClass()))
+        if (!listeners.containsKey(event.getClass()))
         {
-            for (EventListener l : listeners.get(event.getClass()))
+            return;
+        }
+
+        for (EventListener l : listeners.get(event.getClass()))
+        {
+            if (l.getInstance() == null)
             {
-                if (l.getInstance() != null)
-                {
-                    Class<?> eventParamType = l.getMethod().getParameterTypes()[0];
-                    if (eventParamType.isAssignableFrom(event.getClass()))
-                    {
-                        l.invoke(event);
-                    }
-                }
+                return;
+            }
+
+            Class<?> eventParamType = l.getMethod().getParameterTypes()[0];
+            if (eventParamType.isAssignableFrom(event.getClass()))
+            {
+                l.invoke(event);
             }
         }
     }
@@ -84,7 +87,7 @@ public class EventBus
 
     /**
      * Unsubscribes listeners.
-     * @param instance is a listener
+     * @param instance is a listener.
      */
     public void unsubscribe(Object instance)
     {
@@ -92,16 +95,20 @@ public class EventBus
         subscriptions.remove(instance);
     }
 
-    public boolean isSubscribed(Object object)
+    /**
+     * @param instance is a listener.
+     * @return true if the listener is subscribed and false otherwise.
+     */
+    public boolean isSubscribed(Object instance)
     {
-        return subscriptions.containsKey(object);
+        return subscriptions.containsKey(instance);
     }
 
     /**
      * Turns methods we know are listeners into listener objects.
      *
-     * @param methods  the methods we want to turn into listeners
-     * @param instance the method's class' instance (null if methods are static)
+     * @param methods  the methods we want to turn into listeners.
+     * @param instance the method's class' instance (null if methods are static).
      */
     private void addListeners(List<Method> methods, Object instance)
     {
@@ -126,10 +133,10 @@ public class EventBus
     }
 
     /**
-     * Removes Listeners by looping over their respective lists
+     * Removes Listeners by looping over their respective lists.
      *
-     * @param methods  the methods we want to remove
-     * @param instance method's class' instance (null if methods are static)
+     * @param methods  the methods we want to remove.
+     * @param instance method's class' instance (null if methods are static).
      */
     private void removeListeners(List<Method> methods, Object instance)
     {
