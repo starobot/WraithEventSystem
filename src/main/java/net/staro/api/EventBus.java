@@ -116,12 +116,12 @@ public class EventBus
     private void addListeners(List<Method> methods, Object instance)
     {
         List<Class<?>> subscribedEvents = subscriptions.computeIfAbsent(instance, k -> new ArrayList<>());
-        for (var method : methods)
+        for (Method method : methods)
         {
             Class<?> eventType = getEventParameterType(method);
             listeners.putIfAbsent(eventType, new PriorityQueue<>());
             PriorityQueue<EventListener> queue = listeners.get(eventType);
-            for (var annotation : method.getAnnotations())
+            for (Annotation annotation : method.getAnnotations())
             {
                 if (listenerFactories.containsKey(annotation.annotationType()))
                 {
@@ -143,7 +143,7 @@ public class EventBus
      */
     private void removeListeners(List<Method> methods, Object instance)
     {
-        for (var method : methods)
+        for (Method method : methods)
         {
             Class<?> eventType = getEventParameterType(method);
             PriorityQueue<EventListener> queue = listeners.get(eventType);
@@ -159,9 +159,9 @@ public class EventBus
     private List<Method> getListeningMethods(Class<?> clazz)
     {
         ArrayList<Method> listening = new ArrayList<>();
-        for (var method : clazz.getDeclaredMethods())
+        for (Method method : clazz.getDeclaredMethods())
         {
-            for (var annotation : method.getDeclaredAnnotations())
+            for (Annotation annotation : method.getDeclaredAnnotations())
             {
                 if (listenerFactories.containsKey(annotation.annotationType()) && method.getParameterCount() == 1)
                 {
