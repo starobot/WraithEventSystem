@@ -1,4 +1,4 @@
-# Wraith Event System
+# Staro Event System
 
 An EXTREMELY FAST java event system. This is the continuation of the @ARZI1 event system
 https://github.com/ARZI1/eventsystem
