@@ -3,8 +3,8 @@
 An EXTREMELY FAST java event system. This is the continuation of the @ARZI1 event system
 https://github.com/ARZI1/eventsystem
 
-Here are the benchmark comparison between WraithEventSystem, Orbit and Energy and Pingbypass Event Bus upon posting one million events:
-Wraith: 15 ms
+Here are the benchmark comparison between StaroEventSystem, Orbit and Energy and Pingbypass Event Bus upon posting one million events:
+Staro: 15 ms
 Orbit: 44 ms
 Energy: 85 ms
 Pingbypass: 28 ms
